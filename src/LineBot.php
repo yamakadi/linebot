@@ -7,6 +7,10 @@ use GuzzleHttp\RequestOptions;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Yamakadi\LineBot\AccessToken\Token;
+use Yamakadi\LineBot\Events\Message;
+use Yamakadi\LineBot\Events\Unknown;
+use Yamakadi\LineBot\Exceptions\InvalidRequestException;
+use Yamakadi\LineBot\Exceptions\InvalidSignatureException;
 use Yamakadi\LineBot\Messages\OutgoingMessage;
 use Yamakadi\LineBot\Users\User;
 
@@ -17,25 +21,23 @@ class LineBot
     const API_ENDPOINT = 'https://api.line.me';
     const VERSION = '1.0';
 
-    /**
-     * @var \Yamakadi\LineBot\Channel
-     */
+    /** @var \Yamakadi\LineBot\Channel */
     private $channel;
 
-    /**
-     * @var \Yamakadi\LineBot\AccessToken\Token
-     */
+    /** @var \Yamakadi\LineBot\AccessToken\Token */
     private $token;
 
-    /**
-     * @var \GuzzleHttp\ClientInterface
-     */
+    /** @var \GuzzleHttp\ClientInterface */
     private $http;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $headers;
+
+    /** @var array */
+    private $namespaces = [
+        'event' => 'Yamakadi\LineBot\Events\%s',
+        'message' => 'Yamakadi\LineBot\Messages\Incoming\%s'
+    ];
 
     /**
      * Create a new LineBot Instance
@@ -60,11 +62,43 @@ class LineBot
     /**
      * @param array  $payload
      * @param string $signature
+     * @return \Yamakadi\LineBot\Events\Event[]
+     *
+     * @throws \Yamakadi\LineBot\Exceptions\InvalidRequestException
      * @throws \Yamakadi\LineBot\Exceptions\InvalidSignatureException
      */
     public function parse(array $payload, string $signature)
     {
+        if (!$this->verifySignature($this->channel->secret(), $signature, $payload)) {
+            throw new InvalidSignatureException('The signature is not valid.');
+        }
 
+        $payload = json_decode($payload, true);
+
+        if (!array_key_exists('events', $payload)) {
+            throw new InvalidRequestException;
+        }
+
+        return array_map(function($event) {
+            $class = $this->determineClassname('event', $event['type']);
+
+            if (! class_exists($class)) {
+                return Unknown::make($event);
+            }
+
+            $instance = $class::make($event);
+
+            if($instance instanceof Message) {
+                $messageClass = $this->determineClassname('message', $event['message']['type']);
+
+                if (class_exists($messageClass)) {
+                    return $messageClass::make($event);
+                }
+            }
+
+            return $instance;
+
+        }, $payload['events']);
     }
 
     /**
@@ -114,7 +148,7 @@ class LineBot
     /**
      * Replies arbitrary message to destination which is associated with reply token.
      *
-     * @param string            $token
+     * @param string          $token
      * @param OutgoingMessage $messages
      * @return \Psr\Http\Message\ResponseInterface
      */
@@ -132,7 +166,7 @@ class LineBot
     /**
      * Sends arbitrary messages to destination.
      *
-     * @param string|string[]   $to
+     * @param string|string[] $to
      * @param OutgoingMessage $messages
      * @return \Psr\Http\Message\ResponseInterface
      */
@@ -235,5 +269,14 @@ class LineBot
         }
 
         return $types[$typeIdentifier];
+    }
+
+    protected function determineClassname(string $namespace, string $type): string
+    {
+        if(! array_key_exists($namespace, $this->namespaces)) {
+            throw new InvalidArgumentException('Undefined namespace');
+        }
+
+        return sprintf($this->namespaces[$namespace], ucfirst($type));
     }
 }
