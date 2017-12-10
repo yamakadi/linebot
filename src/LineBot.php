@@ -18,6 +18,7 @@ class LineBot
 {
     use VerifiesSignature;
 
+    const LINE_SIGNATURE = 'X_LINE_SIGNATURE';
     const API_ENDPOINT = 'https://api.line.me';
     const VERSION = '1.0';
 
