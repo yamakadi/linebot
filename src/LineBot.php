@@ -37,7 +37,7 @@ class LineBot
     /** @var array */
     private $namespaces = [
         'event' => 'Yamakadi\LineBot\Events\%s',
-        'message' => 'Yamakadi\LineBot\Messages\Incoming\%s'
+        'message' => 'Yamakadi\LineBot\Messages\Incoming\%s',
     ];
 
     /**
@@ -61,14 +61,14 @@ class LineBot
     }
 
     /**
-     * @param array  $payload
+     * @param string $payload
      * @param string $signature
      * @return \Yamakadi\LineBot\Events\Event[]
      *
      * @throws \Yamakadi\LineBot\Exceptions\InvalidRequestException
      * @throws \Yamakadi\LineBot\Exceptions\InvalidSignatureException
      */
-    public function parse(array $payload, string $signature)
+    public function parse(string $payload, string $signature)
     {
         if (!$this->verifySignature($this->channel->secret(), $signature, $payload)) {
             throw new InvalidSignatureException('The signature is not valid.');
@@ -80,16 +80,16 @@ class LineBot
             throw new InvalidRequestException;
         }
 
-        return array_map(function($event) {
+        return array_map(function ($event) {
             $class = $this->determineClassname('event', $event['type']);
 
-            if (! class_exists($class)) {
+            if (!class_exists($class)) {
                 return Unknown::make($event);
             }
 
             $instance = $class::make($event);
 
-            if($instance instanceof Message) {
+            if ($instance instanceof Message) {
                 $messageClass = $this->determineClassname('message', $event['message']['type']);
 
                 if (class_exists($messageClass)) {
@@ -274,7 +274,7 @@ class LineBot
 
     protected function determineClassname(string $namespace, string $type): string
     {
-        if(! array_key_exists($namespace, $this->namespaces)) {
+        if (!array_key_exists($namespace, $this->namespaces)) {
             throw new InvalidArgumentException('Undefined namespace');
         }
 
