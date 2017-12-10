@@ -14,7 +14,7 @@ class ImageCarousel extends OutgoingMessage
     private $altText;
 
     /** @var \Yamakadi\LineBot\Messages\Outgoing\Templates\ImageCarouselColumn[] */
-    private $columns;
+    private $columns = [];
 
     /**
      * Create a new ImageCarousel Instance

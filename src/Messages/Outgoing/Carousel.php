@@ -20,7 +20,7 @@ class Carousel extends OutgoingMessage
     protected $imageSize;
 
     /** @var \Yamakadi\LineBot\Messages\Outgoing\Templates\CarouselColumn[] */
-    private $columns;
+    private $columns = [];
 
     /**
      * Create a new Carousel Instance

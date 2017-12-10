@@ -33,7 +33,7 @@ class Buttons extends OutgoingMessage
     private $text;
 
     /** @var \Yamakadi\LineBot\Messages\Outgoing\Templates\TemplateAction[] */
-    private $actions;
+    private $actions = [];
 
     /**
      * Create a new Buttons Instance
