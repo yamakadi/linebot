@@ -21,7 +21,6 @@ class ImageCarousel extends OutgoingMessage
      *
      * @param string                                                              $altText
      * @param \Yamakadi\LineBot\Messages\Outgoing\Templates\ImageCarouselColumn[] $columns
-     * @throws \TypeError
      */
     public function __construct(string $altText, ImageCarouselColumn ...$columns)
     {

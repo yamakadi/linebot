@@ -11,6 +11,7 @@ use Yamakadi\LineBot\Events\Message;
 use Yamakadi\LineBot\Events\Unknown;
 use Yamakadi\LineBot\Exceptions\InvalidRequestException;
 use Yamakadi\LineBot\Exceptions\InvalidSignatureException;
+use Yamakadi\LineBot\Messages\Outgoing\MessageCollection;
 use Yamakadi\LineBot\Messages\OutgoingMessage;
 use Yamakadi\LineBot\Users\User;
 
@@ -158,7 +159,7 @@ class LineBot
         return $this->http->request('POST', self::API_ENDPOINT . '/v2/bot/message/reply', [
             RequestOptions::JSON => [
                 'replyToken' => $token,
-                'messages' => $messages,
+                'messages' => $messages instanceof MessageCollection ? $messages : [$messages],
             ],
             RequestOptions::HEADERS => $this->headers,
         ]);

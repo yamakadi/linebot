@@ -117,10 +117,10 @@ class Buttons extends OutgoingMessage
 
     public function toArray(): array
     {
-        $template = [
+        return [
             'type' => 'template',
             'altText' => $this->altText,
-            'template' => [
+            'template' => array_filter([
                 'type' => self::TYPE,
                 'thumbnailImageUrl' => $this->thumbnail,
                 'imageAspectRatio' => $this->aspectRatio,
@@ -129,10 +129,8 @@ class Buttons extends OutgoingMessage
                 'title' => $this->title,
                 'text' => $this->text,
                 'actions' => $this->actions,
-            ],
+            ]),
         ];
-
-        return array_filter($template);
     }
 
     private function canAddMoreActions(array $actions)

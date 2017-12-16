@@ -75,15 +75,17 @@ class DateTimePickerAction extends TemplateAction
 
     public function toArray(): array
     {
-        return [
+        $action = [
             'type' => self::TYPE,
             'label' => $this->label,
             'data' => $this->data,
             'mode' => $this->mode,
-            'initial' => $this->formatDate($this->initial),
-            'min' => $this->formatDate($this->min),
-            'max' => $this->formatDate($this->max),
+            'initial' => $this->initial ? $this->formatDate($this->initial) : null,
+            'min' => $this->min ? $this->formatDate($this->min) : null,
+            'max' => $this->max ? $this->formatDate($this->max) : null,
         ];
+
+        return array_filter($action);
     }
 
     protected function formatDate(DateTimeImmutable $datetime): string
