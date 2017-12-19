@@ -72,6 +72,12 @@ class Postback extends Generic implements Event, CanBeReplied
      */
     public function date(?DateTimeZone $timezone = null): ?DateTimeImmutable
     {
+        if(array_key_exists('time', $this->params)) {
+            return DateTimeImmutable::createFromFormat(
+                'H:i', $this->params['time'], $timezone ?? new DateTimeZone('Asia/Tokyo')
+            );
+        }
+
         if(array_key_exists('date', $this->params)) {
             return DateTimeImmutable::createFromFormat(
                 'Y-m-d\TH:i', $this->params['date'] . 'T00:00', $timezone ?? new DateTimeZone('Asia/Tokyo')
