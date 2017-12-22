@@ -27,7 +27,6 @@ class Carousel extends OutgoingMessage
      *
      * @param string                                                         $altText
      * @param \Yamakadi\LineBot\Messages\Outgoing\Templates\CarouselColumn[] $columns
-     * @throws \TypeError
      */
     public function __construct(string $altText, CarouselColumn ...$columns)
     {
@@ -35,9 +34,9 @@ class Carousel extends OutgoingMessage
         $this->withColumns(...$columns);
     }
 
-    public static function make(string $altText, string $text): self
+    public static function make(string $altText): self
     {
-        return new static($altText, $text);
+        return new static($altText);
     }
 
     public function withColumns(CarouselColumn ...$columns): self
